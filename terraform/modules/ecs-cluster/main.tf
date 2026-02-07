@@ -13,26 +13,20 @@ module "ecs_cluster" {
 
   cluster_name = "${var.project}-${var.environment}"
 
-  default_capacity_provider_strategy = {
-    ec2-ondemand = {
-      weight = 100
-      base   = 1
-    }
-  }
+  # Use EC2 capacity provider, not Fargate
+  default_capacity_provider_use_fargate = false
 
-  capacity_providers = {
+  autoscaling_capacity_providers = {
     ec2-ondemand = {
-      auto_scaling_group_provider = {
-        auto_scaling_group_arn         = module.autoscaling.autoscaling_group_arn
-        managed_draining               = "ENABLED"
-        managed_termination_protection = "ENABLED"
+      auto_scaling_group_arn         = module.autoscaling.autoscaling_group_arn
+      managed_draining               = "ENABLED"
+      managed_termination_protection = "ENABLED"
 
-        managed_scaling = {
-          maximum_scaling_step_size = 2
-          minimum_scaling_step_size = 1
-          status                    = "ENABLED"
-          target_capacity           = 80
-        }
+      managed_scaling = {
+        maximum_scaling_step_size = 2
+        minimum_scaling_step_size = 1
+        status                    = "ENABLED"
+        target_capacity           = 80
       }
     }
   }
