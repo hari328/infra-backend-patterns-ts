@@ -21,7 +21,7 @@ on:
       working_directory:
         description: 'Terragrunt working directory'
         required: true
-        default: 'terraform/test-oidc'
+        default: 'terraform/stage/us-east-1/base-infra/test-s3-backend'
 
 permissions:
   id-token: write
