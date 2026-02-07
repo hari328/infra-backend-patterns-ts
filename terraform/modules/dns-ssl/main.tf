@@ -10,15 +10,20 @@ resource "aws_route53_zone" "main" {
 }
 
 # ACM Wildcard Certificate
+# Uses provider alias without default_tags — ACM rejects certain
+# characters in tag values that our default provider tags contain
 resource "aws_acm_certificate" "wildcard" {
+  provider = aws.acm
+
   domain_name               = "*.${var.domain_name}"
   subject_alternative_names = [var.domain_name]
   validation_method         = "DNS"
 
   tags = {
     Name        = "wildcard.${var.domain_name}"
-    Project     = var.project
-    Environment = var.environment
+    project     = var.project
+    environment = var.environment
+    managed_by  = "terragrunt"
   }
 
   lifecycle {
@@ -47,6 +52,8 @@ resource "aws_route53_record" "cert_validation" {
 
 # Wait for certificate validation to complete
 resource "aws_acm_certificate_validation" "wildcard" {
+  provider = aws.acm
+
   certificate_arn         = aws_acm_certificate.wildcard.arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
 }
