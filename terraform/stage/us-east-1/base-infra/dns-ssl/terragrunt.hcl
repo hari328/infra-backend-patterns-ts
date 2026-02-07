@@ -15,6 +15,9 @@ generate "acm_provider" {
 provider "aws" {
   alias  = "acm"
   region = "us-east-1"
+  default_tags {
+    tags = {}
+  }
 }
 EOF
 }
