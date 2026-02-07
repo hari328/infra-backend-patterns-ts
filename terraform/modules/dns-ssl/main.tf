@@ -16,7 +16,7 @@ resource "aws_acm_certificate" "wildcard" {
   validation_method         = "DNS"
 
   tags = {
-    Name        = "*.${var.domain_name}"
+    Name        = "wildcard.${var.domain_name}"
     Project     = var.project
     Environment = var.environment
   }
