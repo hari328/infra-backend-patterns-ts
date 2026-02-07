@@ -12,3 +12,44 @@ I have thought about how it should look the base-infra in the folder has the det
 ---
 
 I want to use terragrunt here not terraform
+
+
+---
+## the structure of the terraform folder
+
+```
+terraform/
+├── modules/
+│   ├── base-infra/
+│   │   ├── networking/
+│   │   ├── ecs-cluster/
+│   │   ├── alb/
+│   │   ├── dns-ssl/
+│   │   ├── efs/
+│   │   └── cognito/
+│   └── monitoring/
+│       ├── prometheus/
+│       ├── loki/
+│       ├── tempo/
+│       ├── grafana/
+│       └── otel/
+├── stage/
+│   ├── env.yaml
+│   └── us-east-1/
+│       ├── base-infra/
+│       │   ├── networking/terragrunt.hcl
+│       │   ├── ecs-cluster/terragrunt.hcl
+│       │   └── ...
+│       └── monitoring/
+│           ├── prometheus/terragrunt.hcl
+│           └── ...
+├── prod/
+│   ├── env.yaml
+│   └── us-east-1/
+│       ├── base-infra/
+│       │   └── ...
+│       └── monitoring/
+│           └── ...
+└── terragrunt.hcl
+```
+

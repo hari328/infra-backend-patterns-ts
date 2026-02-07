@@ -21,7 +21,7 @@ on:
       working_directory:
         description: 'Terragrunt working directory'
         required: true
-        default: 'terraform/test-oidc'
+        default: 'terraform/stage/us-east-1/base-infra/networking'
 
 permissions:
   id-token: write
@@ -56,19 +56,27 @@ jobs:
 
       - name: Terragrunt Init
         working-directory: ${{ inputs.working_directory }}
-        run: terragrunt init
+        run: terragrunt init --terragrunt-non-interactive --terragrunt-source-update
 
       - name: Terragrunt Plan
         if: inputs.action == 'plan'
         working-directory: ${{ inputs.working_directory }}
-        run: terragrunt plan
+        run: terragrunt plan -out=tfplan --terragrunt-non-interactive --terragrunt-source-update
+
+      - name: Upload Plan Artifact
+        if: inputs.action == 'plan'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ inputs.environment }}
+          path: ${{ inputs.working_directory }}/.terragrunt-cache/**/tfplan
+          retention-days: 1
 
       - name: Terragrunt Apply
         if: inputs.action == 'apply'
         working-directory: ${{ inputs.working_directory }}
-        run: terragrunt apply -auto-approve
+        run: terragrunt apply -auto-approve --terragrunt-non-interactive --terragrunt-source-update
 
       - name: Terragrunt Destroy
         if: inputs.action == 'destroy'
         working-directory: ${{ inputs.working_directory }}
-        run: terragrunt destroy -auto-approve
+        run: terragrunt destroy -auto-approve --terragrunt-non-interactive --terragrunt-source-update
