@@ -56,19 +56,19 @@ jobs:
 
       - name: Terragrunt Init
         working-directory: ${{ inputs.working_directory }}
-        run: terragrunt init
+        run: terragrunt init --terragrunt-non-interactive
 
       - name: Terragrunt Plan
         if: inputs.action == 'plan'
         working-directory: ${{ inputs.working_directory }}
-        run: terragrunt plan
+        run: terragrunt plan --terragrunt-non-interactive
 
       - name: Terragrunt Apply
         if: inputs.action == 'apply'
         working-directory: ${{ inputs.working_directory }}
-        run: terragrunt apply -auto-approve
+        run: terragrunt apply -auto-approve --terragrunt-non-interactive
 
       - name: Terragrunt Destroy
         if: inputs.action == 'destroy'
         working-directory: ${{ inputs.working_directory }}
-        run: terragrunt destroy -auto-approve
+        run: terragrunt destroy -auto-approve --terragrunt-non-interactive
