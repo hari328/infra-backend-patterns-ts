@@ -11,6 +11,10 @@ on:
           - aws-stage
           - aws-prod
 
+      confirm:
+        description: "Type 'DESTROY' to confirm"
+        required: true
+
 permissions:
   id-token: write
   contents: read
@@ -20,7 +24,17 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
 
+    concurrency:
+      group: terragrunt-${{ inputs.environment }}-run-all
+      cancel-in-progress: false
+
     steps:
+      - name: Confirm destroy
+        if: inputs.confirm != 'DESTROY'
+        run: |
+          echo "::error::Refusing to run destroy-all unless confirm input equals 'DESTROY'"
+          exit 1
+
       - name: Block non-main deploys to prod
         if: inputs.environment == 'aws-prod' && github.ref != 'refs/heads/main'
         run: |
@@ -50,5 +64,9 @@ jobs:
 
       - name: Terragrunt Run-All Destroy
         working-directory: terraform
-        run: terragrunt run-all destroy --terragrunt-non-interactive --terragrunt-exclude-dir s3-backend -auto-approve
+        run: >-
+          terragrunt run-all destroy
+          --terragrunt-non-interactive
+          --terragrunt-exclude-dir s3-backend
+          -auto-approve
 

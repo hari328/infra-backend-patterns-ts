@@ -20,6 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
 
+    concurrency:
+      group: terragrunt-${{ inputs.environment }}-run-all
+      cancel-in-progress: false
+
     steps:
       - name: Block non-main deploys to prod
         if: inputs.environment == 'aws-prod' && github.ref != 'refs/heads/main'
@@ -50,5 +54,8 @@ jobs:
 
       - name: Terragrunt Run-All Apply
         working-directory: terraform
-        run: terragrunt run-all apply --terragrunt-non-interactive -auto-approve
+        run: >-
+          terragrunt run-all apply
+          --terragrunt-non-interactive
+          -auto-approve
 
