@@ -8,3 +8,7 @@ we are preparing a base aws infra and also observability tools like prometheus, 
 we are deploying the services in the github repo: https://github.com/hari328/backend-patterns-ts
 
 I have thought about how it should look the base-infra in the folder has the details needed.
+
+---
+
+I want to use terragrunt here not terraform
