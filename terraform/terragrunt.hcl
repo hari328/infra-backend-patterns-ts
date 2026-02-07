@@ -30,11 +30,11 @@ remote_state {
     if_exists = "overwrite_terragrunt"
   }
   config = {
-    bucket         = "hari328-${local.environment}-tfstate"
+    bucket         = "hari328-infra-${local.environment}-tfstate"
     key            = "${path_relative_to_include()}/terraform.tfstate"
     region         = local.aws_region
     encrypt        = true
-    dynamodb_table = "hari328-${local.environment}-tflock"
+    dynamodb_table = "hari328-infra-${local.environment}-tflock"
   }
 }
 
