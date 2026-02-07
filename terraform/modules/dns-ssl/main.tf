@@ -19,12 +19,8 @@ resource "aws_acm_certificate" "wildcard" {
   subject_alternative_names = [var.domain_name]
   validation_method         = "DNS"
 
-  tags = {
-    Name        = "wildcard.${var.domain_name}"
-    project     = var.project
-    environment = var.environment
-    managed_by  = "terragrunt"
-  }
+  # Tags temporarily removed to debug validation error
+  tags = {}
 
   lifecycle {
     create_before_destroy = true
