@@ -11,6 +11,11 @@ on:
           - aws-stage
           - aws-prod
 
+      working_directory:
+        description: 'Terragrunt working directory (e.g., terraform/stage/us-east-1)'
+        required: true
+        default: 'terraform/stage/us-east-1'
+
       confirm:
         description: "Type 'DESTROY' to confirm"
         required: true
@@ -44,6 +49,77 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Validate Terragrunt working directory
+        shell: bash
+        run: |
+          TG_WORKING_DIR="${{ inputs.working_directory }}"
+
+          # Normalize common user inputs (e.g., "./terraform/..." or trailing slash)
+          TG_WORKING_DIR="${TG_WORKING_DIR#./}"
+          TG_WORKING_DIR="${TG_WORKING_DIR%/}"
+
+          if [[ -z "$TG_WORKING_DIR" ]]; then
+            echo "::error::working_directory input must not be empty"
+            exit 1
+          fi
+
+          if [[ "$TG_WORKING_DIR" == /* ]]; then
+            echo "::error::working_directory must be a relative path within the repository"
+            exit 1
+          fi
+
+          if [[ "$TG_WORKING_DIR" == *".."* ]]; then
+            echo "::error::working_directory must not contain '..'"
+            exit 1
+          fi
+
+          if [[ "$TG_WORKING_DIR" == "terraform" ]]; then
+            echo "::error::Refusing to run from terraform/ (will execute terraform/terragrunt.hcl and fail to find env.yaml)"
+            echo "::error::Use terraform/stage/us-east-1 (or a deeper module path) instead."
+            exit 1
+          fi
+
+          if [[ ! -d "$TG_WORKING_DIR" ]]; then
+            echo "::error::Working directory not found: $TG_WORKING_DIR"
+            exit 1
+          fi
+
+          if [[ "${{ inputs.environment }}" == "aws-stage" && "$TG_WORKING_DIR" != terraform/stage/* ]]; then
+            echo "::error::For aws-stage, working_directory must be under terraform/stage/"
+            exit 1
+          fi
+
+          if [[ "${{ inputs.environment }}" == "aws-prod" && "$TG_WORKING_DIR" != terraform/prod/* ]]; then
+            echo "::error::For aws-prod, working_directory must be under terraform/prod/"
+            exit 1
+          fi
+
+          DIR="$TG_WORKING_DIR"
+          FOUND="false"
+
+          while true; do
+            if [[ -f "$DIR/env.yaml" ]]; then
+              FOUND="true"
+              break
+            fi
+
+            if [[ "$DIR" == "." || "$DIR" == "/" || -z "$DIR" ]]; then
+              break
+            fi
+
+            PARENT="$(dirname "$DIR")"
+            if [[ "$PARENT" == "$DIR" ]]; then
+              break
+            fi
+            DIR="$PARENT"
+          done
+
+          if [[ "$FOUND" != "true" ]]; then
+            echo "::error::env.yaml not found in $TG_WORKING_DIR or any parent directory."
+            echo "::error::Example valid value: terraform/stage/us-east-1"
+            exit 1
+          fi
+
       - name: Configure AWS Credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -63,7 +139,7 @@ jobs:
           terragrunt-version: 0.68.9
 
       - name: Terragrunt Run-All Destroy
-        working-directory: terraform
+        working-directory: ${{ inputs.working_directory }}
         run: >-
           terragrunt run-all destroy
           --terragrunt-non-interactive
