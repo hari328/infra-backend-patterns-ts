@@ -4,12 +4,13 @@
 
 | Layer | What | How often it changes | Where Terraform lives |
 |---|---|---|---|
-| **Layer 1** | Shared platform infra | Rarely | `aws-infra/terraform/` |
-| **Layer 2a** | Application (backend-patterns-ts) | Every app deploy | `backend-patterns-ts/terraform/` |
-| **Layer 2b** | Monitoring (Prometheus, Loki, Tempo, Grafana) | When monitoring config changes | `monitoring-stack/terraform/` |
+| **Layer 1** | Shared platform infra | Rarely | `terraform/base-infra/` (this repo) |
+| **Layer 2a** | Application (backend-patterns-ts) | Every app deploy | `backend-patterns-ts/terraform/` (separate repo) |
+| **Layer 2b** | Monitoring (Prometheus, Loki, Tempo, Grafana) | When monitoring config changes | `terraform/monitoring/` (this repo) |
 
-All three are separate Terraform states, separate repos, independently deployable.
-Layer 2 services are tenants on the Layer 1 platform — they share the same VPC, ECS cluster, and ALB.
+Layer 1 and Layer 2b live in this repo but are separate Terraform states, independently deployable.
+Layer 2a lives in its own repo.
+All Layer 2 services are tenants on the Layer 1 platform — they share the same VPC, ECS cluster, and ALB.
 
 ## Layer 1 — Base Infrastructure
 
