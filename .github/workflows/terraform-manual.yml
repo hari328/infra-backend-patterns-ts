@@ -21,7 +21,7 @@ on:
       working_directory:
         description: 'Terragrunt working directory'
         required: true
-        default: 'terraform/stage/us-east-1/base-infra/test-s3-backend'
+        default: 'terraform/stage/us-east-1/base-infra/networking'
 
 permissions:
   id-token: write
@@ -61,7 +61,15 @@ jobs:
       - name: Terragrunt Plan
         if: inputs.action == 'plan'
         working-directory: ${{ inputs.working_directory }}
-        run: terragrunt plan --terragrunt-non-interactive
+        run: terragrunt plan -out=tfplan --terragrunt-non-interactive
+
+      - name: Upload Plan Artifact
+        if: inputs.action == 'plan'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ inputs.environment }}
+          path: ${{ inputs.working_directory }}/.terragrunt-cache/**/tfplan
+          retention-days: 1
 
       - name: Terragrunt Apply
         if: inputs.action == 'apply'
