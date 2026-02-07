@@ -56,12 +56,12 @@ jobs:
 
       - name: Terragrunt Init
         working-directory: ${{ inputs.working_directory }}
-        run: terragrunt init --terragrunt-non-interactive
+        run: terragrunt init --terragrunt-non-interactive --terragrunt-source-update
 
       - name: Terragrunt Plan
         if: inputs.action == 'plan'
         working-directory: ${{ inputs.working_directory }}
-        run: terragrunt plan -out=tfplan --terragrunt-non-interactive
+        run: terragrunt plan -out=tfplan --terragrunt-non-interactive --terragrunt-source-update
 
       - name: Upload Plan Artifact
         if: inputs.action == 'plan'
@@ -74,9 +74,9 @@ jobs:
       - name: Terragrunt Apply
         if: inputs.action == 'apply'
         working-directory: ${{ inputs.working_directory }}
-        run: terragrunt apply -auto-approve --terragrunt-non-interactive
+        run: terragrunt apply -auto-approve --terragrunt-non-interactive --terragrunt-source-update
 
       - name: Terragrunt Destroy
         if: inputs.action == 'destroy'
         working-directory: ${{ inputs.working_directory }}
-        run: terragrunt destroy -auto-approve --terragrunt-non-interactive
+        run: terragrunt destroy -auto-approve --terragrunt-non-interactive --terragrunt-source-update
