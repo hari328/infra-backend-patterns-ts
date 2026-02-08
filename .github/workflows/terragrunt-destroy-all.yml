@@ -140,9 +140,23 @@ jobs:
 
       - name: Terragrunt Run-All Destroy
         working-directory: ${{ inputs.working_directory }}
-        run: >-
-          terragrunt run-all destroy
-          --terragrunt-non-interactive
-          --terragrunt-exclude-dir s3-backend
-          -auto-approve
+        shell: bash
+        run: |
+          # Always keep the backend module intact (state bucket/lock table)
+          EXCLUDE_ARGS=("--terragrunt-exclude-dir" "s3-backend")
+
+          # Keep DNS + ACM certificate intact to avoid needing to update registrar name servers again.
+          # Depending on the provided working_directory, dns-ssl may be nested.
+          if [[ -d "base-infra/dns-ssl" ]]; then
+            EXCLUDE_ARGS+=("--terragrunt-exclude-dir" "base-infra/dns-ssl")
+          elif [[ -d "dns-ssl" ]]; then
+            EXCLUDE_ARGS+=("--terragrunt-exclude-dir" "dns-ssl")
+          else
+            echo "::warning::dns-ssl module directory not found under '${{ inputs.working_directory }}'; not excluding it"
+          fi
+
+          terragrunt run-all destroy \
+            --terragrunt-non-interactive \
+            "${EXCLUDE_ARGS[@]}" \
+            -auto-approve
 
