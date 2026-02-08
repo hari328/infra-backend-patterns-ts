@@ -21,5 +21,7 @@ inputs = {
   public_subnet_ids = dependency.networking.outputs.public_subnets
   vpc_cidr          = dependency.networking.outputs.vpc_cidr_block
   acm_cert_arn      = dependency.dns_ssl.outputs.acm_cert_arn
+  hosted_zone_id    = dependency.dns_ssl.outputs.hosted_zone_id
+  domain_name       = "hari328.net"
 }
 

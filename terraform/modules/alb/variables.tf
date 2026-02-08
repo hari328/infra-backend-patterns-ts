@@ -29,3 +29,13 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
+variable "hosted_zone_id" {
+  description = "Route53 hosted zone ID for creating DNS records"
+  type        = string
+}
+
+variable "domain_name" {
+  description = "Root domain name (e.g. hari328.net)"
+  type        = string
+}
+
