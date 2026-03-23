@@ -88,3 +88,16 @@ resource "aws_ssm_parameter" "alb_listener_arn" {
   value = module.alb.listeners["https"].arn
 }
 
+# Route53 A record: hari328.net -> ALB
+resource "aws_route53_record" "root" {
+  zone_id = var.hosted_zone_id
+  name    = var.domain_name
+  type    = "A"
+
+  alias {
+    name                   = module.alb.dns_name
+    zone_id                = module.alb.zone_id
+    evaluate_target_health = true
+  }
+}
+
